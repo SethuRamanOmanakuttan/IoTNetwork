@@ -1,6 +1,5 @@
-const { Wallets , Gateway} = require('fabric-network')
+const { Wallets , Gateway ,ContractListener} = require('fabric-network')
 const fs = require('fs')
-const {config} = require('../../config')
 
 // Connect to a gateway peer
 
@@ -21,7 +20,7 @@ class clientApp{
         this.connectionOptions = {
             identity: identityLabel,
             wallet: this.wallet
-        } 
+        }
     }
 
     async addIdToWallet(certPath,keyPath,identityLabel){
@@ -65,6 +64,37 @@ class clientApp{
         }
 
     }
+    async contractEventListener(eventName){
+        let gateway = new Gateway();
+        await gateway.connect(this.connectionProfile, this.connectionOptions);
+        const network = await gateway.getNetwork(this.channel);
+        const contract = network.getContract(this.chaincodeId);
+        const listener = async (event) => {
+            if (event.eventName === eventName) {
+                const details = event.payload.toString('utf8');
+                console.log(`Event : ${details}`)
+            }
+        };
+        contract.addContractListener(listener);
+
+    }
+
+    async blockEventListener(){
+    
+        let gateway = new Gateway();
+        await gateway.connect(this.connectionProfile, this.connectionOptions);
+        const network = await gateway.getNetwork(this.channel);
+
+        const listener = async (event) => {
+            console.log(`Event : ${JSON.stringify(event)}\n\n`)
+        }
+        const options = {
+            startBlock: 1
+        };
+        await network.addBlockListener(listener, options);
+    }
+        
+    
 
 }
 
