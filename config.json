@@ -1,0 +1,7 @@
+
+{
+    "Wallet" : "./network/wallet",
+    "CCP" : "./network/organizations/peerOrganizations/org1.example.com/connection-org1.json",
+    "Channel" : "mychannel",
+    "Chaincode":"IoTDataContract"
+}
