@@ -37,7 +37,6 @@ class clientApp{
             mspId: 'Org1MSP',
             type: 'X.509',
         };
-    
         await wallet.put(identityLabel, identity);
     }
 
@@ -86,7 +85,7 @@ class clientApp{
         const network = await gateway.getNetwork(this.channel);
 
         const listener = async (event) => {
-            console.log(`Event : ${JSON.stringify(event)}\n\n`)
+            console.log(`Event : ${JSON.stringify(event)}\n\n`) //add logic here
         }
         const options = {
             startBlock: 1

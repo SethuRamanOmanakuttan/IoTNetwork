@@ -6,9 +6,9 @@
 #
 
 # This script is designed to be run in the cli container as the
-# second step of the EYFN tutorial. It joins the org3 peers to the
+# second step of the EYFN tutorial. It joins the org2 peers to the
 # channel previously setup in the BYFN tutorial and install the
-# chaincode as version 2.0 on peer0.org3.
+# chaincode as version 2.0 on peer0.org2.
 #
 
 CHANNEL_NAME="$1"
@@ -49,7 +49,7 @@ setAnchorPeer() {
   scripts/setAnchorPeer.sh $ORG $CHANNEL_NAME
 }
 
-setGlobalsCLI 3
+setGlobalsCLI 2
 BLOCKFILE="${CHANNEL_NAME}.block"
 
 echo "Fetching channel config block from orderer..."
@@ -60,11 +60,11 @@ res=$?
 cat log.txt
 verifyResult $res "Fetching config block from orderer has failed"
 
-infoln "Joining org3 peer to the channel..."
-joinChannel 3
+infoln "Joining org2 peer to the channel..."
+joinChannel 2
 
-infoln "Setting anchor peer for org3..."
-setAnchorPeer 3
+infoln "Setting anchor peer for org2..."
+setAnchorPeer 2
 
 successln "Channel '$CHANNEL_NAME' joined"
-successln "Org3 peer successfully added to network"
+successln "Org2 peer successfully added to network"

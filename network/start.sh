@@ -1,4 +1,5 @@
 #!/bin/bash
+export MSYS_NO_PATHCONV=1
 echo "Initiating network bootup"
 ./network.sh up
 echo "network is live"
