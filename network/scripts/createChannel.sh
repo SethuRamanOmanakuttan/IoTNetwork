@@ -49,27 +49,63 @@ createChannel() {
 	done
 	cat log.txt
 	verifyResult $res "Channel creation failed"
+	echo "waiting for channel creation......"
+	sleep 15
 }
 
 # joinChannel ORG
-joinChannel() {
-  FABRIC_CFG_PATH=$PWD/../config/
-  ORG=$1
-  setGlobals $ORG
-	local rc=1
-	local COUNTER=1
-	## Sometimes Join takes time, hence retry
-	while [ $rc -ne 0 -a $COUNTER -lt $MAX_RETRY ] ; do
+# joinChannel() {
+#   FABRIC_CFG_PATH=$PWD/../config/
+#   ORG=$1
+#   for peer in 0 1; do
+#     setGlobals $peer $ORG
+# 	local rc=1
+# 	local COUNTER=1
+# 	## Sometimes Join takes time, hence retry
+# 	while [ $rc -ne 0 -a $COUNTER -lt $MAX_RETRY ] ; do
+#     sleep $DELAY
+#     set -x
+#     peer channel join -b $BLOCKFILE >&log.txt
+#     res=$?
+#     { set +x; } 2>/dev/null
+# 		let rc=$res
+# 		COUNTER=$(expr $COUNTER + 1)
+# 	done
+# 	cat log.txt
+# 	verifyResult $res "After $MAX_RETRY attempts, peer${peer}.org${ORG} has failed to join channel '$CHANNEL_NAME' "
+#   done
+# }
+
+joinChannelWithRetry() {
+  local PEER=$1
+  local ORG=$2
+  setGlobals $ORG $PEER
+  echo "Peer Value :- $PEER"
+  set -x
+  peer channel join -b $BLOCKFILE >&log.txt
+  local res=$?
+  local COUNTER=1
+  set +x
+  cat log.txt
+  if [ $res -ne 0 -a $COUNTER -lt $MAX_RETRY ]; then
+    COUNTER=$(expr $COUNTER + 1)
+    echo "peer${PEER}.org${ORG} failed to join the channel, Retry after $DELAY seconds"
     sleep $DELAY
-    set -x
-    peer channel join -b $BLOCKFILE >&log.txt
-    res=$?
-    { set +x; } 2>/dev/null
-		let rc=$res
-		COUNTER=$(expr $COUNTER + 1)
-	done
-	cat log.txt
-	verifyResult $res "After $MAX_RETRY attempts, peer0.org${ORG} has failed to join channel '$CHANNEL_NAME' "
+    joinChannelWithRetry $PEER $ORG
+  else
+    COUNTER=1
+  fi
+  verifyResult $res "After $MAX_RETRY attempts, peer${PEER}.org${ORG} has failed to join channel '$CHANNEL_NAME' "
+}
+
+joinChannel() {
+	local org=$1
+	local peer=$2
+	echo "adding peer..."
+	joinChannelWithRetry $peer $org
+	echo "===================== peer${peer}.org${org} joined channel '$CHANNEL_NAME' ===================== "
+	sleep $DELAY
+
 }
 
 setAnchorPeer() {
@@ -92,8 +128,11 @@ createChannel
 successln "Channel '$CHANNEL_NAME' created"
 
 ## Join all the peers to the channel
-infoln "Joining org1 peer to the channel..."
-joinChannel 1
+infoln "Joining org1 peer0 to the channel..."
+joinChannel 1 0
+
+infoln "Joining org1 peer1 to the channel..."
+joinChannel 1 1
 
 
 ## Set the anchor peers for each org in the channel

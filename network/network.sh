@@ -344,8 +344,8 @@ function networkDown() {
 }
 
 # Using crpto vs CA. default is cryptogen
-# CRYPTO="cryptogen"
-CRYPTO="Certificate Authorities"
+CRYPTO="cryptogen"
+# CRYPTO="Certificate Authorities"
 # timeout duration - the duration the CLI should wait for a response from
 # another container before giving up
 MAX_RETRY=5
@@ -425,7 +425,7 @@ while [[ $# -ge 1 ]] ; do
     shift
     ;;
   -ca )
-    CRYPTO="Certificate Authorities"
+    CRYPTO="cryptogen"
     ;;
   -r )
     MAX_RETRY="$2"

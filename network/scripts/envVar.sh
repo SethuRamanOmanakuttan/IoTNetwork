@@ -13,13 +13,15 @@
 export CORE_PEER_TLS_ENABLED=true
 export ORDERER_CA=${PWD}/organizations/ordererOrganizations/example.com/tlsca/tlsca.example.com-cert.pem
 export PEER0_ORG1_CA=${PWD}/organizations/peerOrganizations/org1.example.com/tlsca/tlsca.org1.example.com-cert.pem
-export PEER0_ORG2_CA=${PWD}/organizations/peerOrganizations/org2.example.com/tlsca/tlsca.org2.example.com-cert.pem
-export PEER0_ORG3_CA=${PWD}/organizations/peerOrganizations/org3.example.com/tlsca/tlsca.org3.example.com-cert.pem
 export ORDERER_ADMIN_TLS_SIGN_CERT=${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/tls/server.crt
 export ORDERER_ADMIN_TLS_PRIVATE_KEY=${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/tls/server.key
 
 # Set environment variables for the peer org
 setGlobals() {
+  local PEER=""
+  if [[ $2 -ne 0 ]]; then
+    PEER=$2
+  fi
   local USING_ORG=""
   if [ -z "$OVERRIDE_ORG" ]; then
     USING_ORG=$1
@@ -31,7 +33,11 @@ setGlobals() {
     export CORE_PEER_LOCALMSPID="Org1MSP"
     export CORE_PEER_TLS_ROOTCERT_FILE=$PEER0_ORG1_CA
     export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp
-    export CORE_PEER_ADDRESS=localhost:7051
+    if [[ $PEER -eq 0 ]]; then
+      export CORE_PEER_ADDRESS=localhost:7051
+    else
+      export CORE_PEER_ADDRESS=localhost:9051
+    fi
   elif [ $USING_ORG -eq 2 ]; then
     export CORE_PEER_LOCALMSPID="Org2MSP"
     export CORE_PEER_TLS_ROOTCERT_FILE=$PEER0_ORG2_CA
@@ -64,6 +70,7 @@ setGlobalsCLI() {
   fi
   if [ $USING_ORG -eq 1 ]; then
     export CORE_PEER_ADDRESS=peer0.org1.example.com:7051
+
   elif [ $USING_ORG -eq 2 ]; then
     export CORE_PEER_ADDRESS=peer0.org2.example.com:11051
   elif [ $USING_ORG -eq 3 ]; then
